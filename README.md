@@ -112,7 +112,7 @@ In build area give the first playbook build.yml and create the second job and in
          pull: yes
          image: "j4jewel/ansiblecd:latest"
          published_ports:
-          - "8080:80"
+          - "80:80"
 
 ```
 
