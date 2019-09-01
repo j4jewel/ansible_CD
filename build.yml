@@ -1,0 +1,71 @@
+---
+
+ - name: "Ansible CD for building Docker Image"
+   hosts: localhost
+   become: yes
+   vars:
+     git_url: https://github.com/j4jewel/ansible-CD.git
+     clone_dir: /var/image_content
+     username: j4jewel
+     email: jwlalias95@gmail.com
+     password: ***DockerHub_Password***
+   tasks:
+
+     - name: "Installing git"
+       yum:
+         name: git
+         state: present
+
+     - name: "Creating clone directory"
+       file:
+         path: "{{ clone_dir }}"
+         state: directory
+
+     - name: "Cloning git repository"
+       git:
+         repo: "{{ git_url }}"
+         dest: "{{ clone_dir }}"
+       register: repo_status
+
+     - name: "Getting the latest tag from git"
+       shell: "git describe --tags"
+       args:
+         chdir: "{{ clone_dir }}"
+       register: latest_tag
+
+     - debug: var=latest_tag.stdout
+
+     - name: "Installing Docker and pip"
+       yum:
+         name: python-pip
+         state: present
+
+     - name: "Installing docker-py"
+       pip: name=docker-py
+
+     - name: Docker Login"
+       docker_login:
+         username: "{{ username }}"
+         password: "{{ password }}"
+         email: "{{ email }}"
+
+     - name: "Building the DockerImage"
+       docker_image:
+         path: "{{ clone_dir }}"
+         name: "j4jewel/ansiblecd"
+         tag: "{{ item }}"
+         push: yes
+         force: yes
+       with_items:
+         - latest
+         - "{{ latest_tag.stdout }}"
+       when: repo_status.changed
+
+     - name: "Removing the images"
+       docker_image:
+         state: absent
+         name: "j4jewel/ansiblecd"
+         tag: "{{ item }}"
+       with_items:
+         - latest
+         - "{{ latest_tag.stdout }}"
