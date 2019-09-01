@@ -13,6 +13,7 @@ In build area give the first playbook build.yml and create the second job and in
 
 #### build.yml
 ```sh
+
 ---
 
  - name: "Ansible CD for building Docker Image"
@@ -21,6 +22,9 @@ In build area give the first playbook build.yml and create the second job and in
    vars:
      git_url: https://github.com/j4jewel/ansible-CD.git
      clone_dir: /var/image_content
+     username: j4jewel
+     email: jwlalias95@gmail.com
+     password: ***DockerHub_Password***
    tasks:
 
      - name: "Installing git"
@@ -57,9 +61,9 @@ In build area give the first playbook build.yml and create the second job and in
 
      - name: Docker Login"
        docker_login:
-         username: j4jewel
-         password: ***DockerHub_Password***
-         email: jwlalias95@gmail.com
+         username: "{{ username }}"
+         password: "{{ password }}"
+         email: "{{ email }}"
 
      - name: "Building the DockerImage"
        docker_image:
