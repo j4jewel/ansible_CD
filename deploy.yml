@@ -1,0 +1,24 @@
+---
+
+ - name: "Creating Container"
+   hosts: prod
+   become: yes
+   tasks:
+
+     - name: "Installing Docker and pip"
+       yum:
+         name: python-pip
+         state: present
+
+     - name: "Installing docker-py"
+       pip: name=docker-py
+
+
+     - name: "Running Docker Container"
+       docker_container:
+         name: "webserver"
+         recreate: true
+         pull: yes
+         image: "j4jewel/ansiblecd:latest"
+         published_ports:
+          - "8080:80"
